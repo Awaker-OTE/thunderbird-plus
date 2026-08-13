@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Thunderbird Plus">
+  <defs>
+    <radialGradient id="backgroundGlow" cx="46%" cy="34%" r="76%">
+      <stop offset="0%" stop-color="#201B61"/>
+      <stop offset="58%" stop-color="#17164A"/>
+      <stop offset="100%" stop-color="#121038"/>
+    </radialGradient>
+    <linearGradient id="bottomLayer" x1="266" y1="372" x2="700" y2="812" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3E46D8"/>
+      <stop offset="100%" stop-color="#221A78"/>
+    </linearGradient>
+    <linearGradient id="middleLayer" x1="292" y1="304" x2="728" y2="698" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5854F4"/>
+      <stop offset="100%" stop-color="#3523A5"/>
+    </linearGradient>
+    <linearGradient id="topLayer" x1="356" y1="240" x2="668" y2="584" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#66C7FF"/>
+      <stop offset="46%" stop-color="#735BFF"/>
+      <stop offset="100%" stop-color="#8A6CFF"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".58"/>
+      <stop offset="56%" stop-color="#8BDFFF" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#8BDFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="layerShadow" x="-14%" y="-14%" width="128%" height="134%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#06051A" flood-opacity=".22"/>
+    </filter>
+    <filter id="coreBlur" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+
+  <!-- Deep indigo desktop-software base. -->
+  <rect x="48" y="48" width="928" height="928" rx="225" fill="url(#backgroundGlow)"/>
+  <rect x="74" y="74" width="876" height="876" rx="198" fill="none" stroke="#EDF8FF" stroke-width="10" opacity=".09"/>
+
+  <!-- Layered Intelligence: three separated modules unified by the light core. -->
+  <g id="layered-modules" filter="url(#layerShadow)">
+    <path id="bottom-module" d="M512 362C546 362 574 377 615 406L792 533C831 561 831 609 792 637L615 764C574 793 546 808 512 808C478 808 450 793 409 764L232 637C193 609 193 561 232 533L409 406C450 377 478 362 512 362Z" fill="url(#bottomLayer)"/>
+    <path d="M232 593L409 720C450 749 478 764 512 764C546 764 574 749 615 720L792 593V637L615 764C574 793 546 808 512 808C478 808 450 793 409 764L232 637Z" fill="#281B8D" opacity=".52"/>
+    <path d="M292 539L420 448C456 423 481 410 512 410C543 410 568 423 604 448L732 539" fill="none" stroke="#FFFFFF" stroke-width="8" opacity=".08"/>
+
+    <path id="middle-module" d="M512 302C543 302 568 315 604 341L759 455C793 480 793 522 759 547L604 661C568 687 543 700 512 700C481 700 456 687 420 661L265 547C231 522 231 480 265 455L420 341C456 315 481 302 512 302Z" fill="url(#middleLayer)"/>
+    <path d="M265 508L420 622C456 648 481 661 512 661C543 661 568 648 604 622L759 508V547L604 661C568 687 543 700 512 700C481 700 456 687 420 661L265 547Z" fill="#3A27C0" opacity=".42"/>
+    <path d="M318 464L430 382C463 358 485 346 512 346C539 346 561 358 594 382L706 464" fill="none" stroke="#FFFFFF" stroke-width="8" opacity=".10"/>
+
+    <path id="top-module" d="M512 236C539 236 561 248 594 272L721 365C752 388 752 424 721 447L594 540C561 564 539 576 512 576C485 576 463 564 430 540L303 447C272 424 272 388 303 365L430 272C463 248 485 236 512 236Z" fill="url(#topLayer)"/>
+    <path d="M303 414L430 507C463 531 485 543 512 543C539 543 561 531 594 507L721 414V447L594 540C561 564 539 576 512 576C485 576 463 564 430 540L303 447Z" fill="#5D43EC" opacity=".30"/>
+    <path d="M366 370L443 314C470 295 491 286 512 286C533 286 554 295 581 314L658 370" fill="none" stroke="#EDF8FF" stroke-width="10" opacity=".24"/>
+  </g>
+
+  <!-- Intelligent core. -->
+  <g id="intelligent-core">
+    <ellipse cx="512" cy="421" rx="150" ry="118" fill="url(#coreGlow)" filter="url(#coreBlur)" opacity=".82"/>
+    <path d="M512 312C526 377 567 418 634 432C567 446 526 487 512 552C498 487 457 446 390 432C457 418 498 377 512 312Z" fill="#FFFFFF"/>
+    <path d="M512 336C524 387 557 420 610 432C557 444 524 477 512 528C500 477 467 444 414 432C467 420 500 387 512 336Z" fill="#EDF8FF" opacity=".72"/>
+  </g>
+</svg>

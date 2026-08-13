@@ -1,0 +1,141 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+  margin-top: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.settings-group-title {
+  font-size: 16px;
+  color: #4a5568;
+  margin: 30px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+}
+
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  font-family: monospace;
+}
+
+.hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#save {
+  background: #0078d4;
+  color: white;
+}
+
+#save:hover {
+  background: #005a9e;
+}
+
+#test {
+  background: #e0e0e0;
+  color: #333;
+}
+
+#test:hover {
+  background: #c0c0c0;
+}
+
+#status {
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: none;
+}
+
+#status.success {
+  display: block;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+#status.error {
+  display: block;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.model-select-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#refreshModels {
+  padding: 10px 14px;
+  background: #e0e0e0;
+  color: #333;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+#refreshModels:hover {
+  background: #c0c0c0;
+}
+
+#modelManual {
+  width: 100%;
+}

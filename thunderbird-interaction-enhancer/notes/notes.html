@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>备忘录</title>
+  <link rel="stylesheet" href="notes.css">
+</head>
+<body>
+  <main class="notes-app" aria-label="备忘录">
+    <aside class="folder-pane" aria-label="备忘录文件夹">
+      <header class="folder-header">
+        <h1>备忘录</h1>
+        <button class="icon-button" id="newFolderButton" type="button" title="新建文件夹" aria-label="新建文件夹">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <nav class="system-folders" aria-label="系统文件夹">
+        <button class="folder-row is-active" type="button" data-view="all">
+          <span class="folder-icon">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5h12v11H4zM7 7h6M7 10h6M7 13h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <span>全部备忘录</span>
+          <strong id="allCount">0</strong>
+        </button>
+        <button class="folder-row" type="button" data-view="pinned">
+          <span class="folder-icon">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 3 1.7 4.9 5.1.1-4.1 3 1.5 5-4.2-2.9L5.8 16l1.5-5-4.1-3 5.1-.1z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"/></svg>
+          </span>
+          <span>置顶</span>
+          <strong id="pinnedCount">0</strong>
+        </button>
+      </nav>
+
+      <section class="folder-section" aria-label="我的文件夹">
+        <div class="section-label">我的文件夹</div>
+        <div id="folderList" class="folder-list"></div>
+      </section>
+
+      <nav class="trash-folder" aria-label="最近删除">
+        <button class="folder-row" type="button" data-view="trash">
+          <span class="folder-icon">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 7h9M8 7V5.2h4V7m-5.5 0 .6 9h5.8l.6-9M8.5 9.5v4M11.5 9.5v4" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>最近删除</span>
+          <strong id="trashCount">0</strong>
+        </button>
+      </nav>
+    </aside>
+
+    <section class="list-pane" aria-label="备忘录列表">
+      <header class="list-header">
+        <div>
+          <h2 id="listTitle">全部备忘录</h2>
+          <p id="listSubtitle">0 条备忘录</p>
+        </div>
+        <div class="list-header-actions">
+          <button class="list-danger-button" id="trashDeleteAllButton" type="button" hidden>全部删除</button>
+          <button class="primary-icon-button" id="newNoteButton" type="button" title="新建备忘录" aria-label="新建备忘录">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <label class="search-box" for="searchInput">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="m14 14 3 3M8.8 15.2a6.4 6.4 0 1 1 0-12.8 6.4 6.4 0 0 1 0 12.8Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/>
+        </svg>
+        <input id="searchInput" type="search" placeholder="搜索备忘录">
+      </label>
+
+      <div id="notesList" class="notes-list" role="listbox" aria-label="备忘录"></div>
+    </section>
+
+    <section class="editor-pane" aria-label="备忘录编辑器">
+      <div id="emptyState" class="empty-state">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M14 8h20a3 3 0 0 1 3 3v26a3 3 0 0 1-3 3H14a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M17 16h14M17 22h14M17 28h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h2>没有选中的备忘录</h2>
+        <button id="emptyNewNoteButton" type="button">新建备忘录</button>
+      </div>
+
+      <article id="editorShell" class="editor-shell" hidden>
+        <header class="editor-topbar">
+          <div>
+            <p id="noteDate" class="note-date"></p>
+            <p id="saveState" class="save-state">已保存</p>
+          </div>
+          <div class="editor-actions">
+            <button class="icon-button" id="pinButton" type="button" title="置顶" aria-label="置顶">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 3 1.7 4.9 5.1.1-4.1 3 1.5 5-4.2-2.9L5.8 16l1.5-5-4.1-3 5.1-.1z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-button danger" id="deleteButton" type="button" title="删除" aria-label="删除">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 7h9M8 7V5.2h4V7m-5.5 0 .6 9h5.8l.6-9" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="trash-actions" id="trashActions" hidden>
+          <button id="restoreButton" type="button">恢复</button>
+          <button id="permanentDeleteButton" type="button">永久删除</button>
+        </div>
+
+        <input id="titleInput" class="title-input" type="text" placeholder="新建备忘录" autocomplete="off">
+
+        <div class="format-toolbar" role="toolbar" aria-label="格式工具">
+          <button type="button" data-command="undo" title="撤销" aria-label="撤销">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+          </button>
+          <button type="button" data-command="redo" title="重做" aria-label="重做">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg>
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <label class="block-select-label" for="blockSelect">
+            <select id="blockSelect" class="block-select" title="段落样式" aria-label="段落样式">
+              <option value="p">正文</option>
+              <option value="h2">标题</option>
+              <option value="h3">小标题</option>
+              <option value="blockquote">引用</option>
+            </select>
+          </label>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button type="button" data-command="bold" title="粗体" aria-label="粗体">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
+          </button>
+          <button type="button" data-command="italic" title="斜体" aria-label="斜体">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+          </button>
+          <button type="button" data-command="underline" title="下划线" aria-label="下划线">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
+          </button>
+          <button type="button" id="highlightButton" title="高亮" aria-label="高亮">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button type="button" data-command="insertUnorderedList" title="项目列表" aria-label="项目列表">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>
+          </button>
+          <button type="button" data-command="insertOrderedList" title="编号列表" aria-label="编号列表">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h10"/><path d="M11 12h10"/><path d="M11 19h10"/><path d="M4 4h1v5"/><path d="M4 9h2"/><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"/></svg>
+          </button>
+          <button type="button" id="checklistButton" title="清单" aria-label="清单">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></svg>
+          </button>
+          <button type="button" data-command="outdent" title="减少缩进" aria-label="减少缩进">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H11"/><path d="M21 12H11"/><path d="M21 19H11"/><path d="m7 8-4 4 4 4"/></svg>
+          </button>
+          <button type="button" data-command="indent" title="增加缩进" aria-label="增加缩进">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H11"/><path d="M21 12H11"/><path d="M21 19H11"/><path d="m3 8 4 4-4 4"/></svg>
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button type="button" id="linkButton" title="链接" aria-label="链接">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </button>
+          <button type="button" id="dateButton" title="插入日期时间" aria-label="插入日期时间">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19h6"/><path d="M16 2v4"/><path d="M19 16v6"/><path d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5"/><path d="M3 10h18"/><path d="M8 2v4"/></svg>
+          </button>
+          <button type="button" id="mailRefButton" title="插入邮件引用" aria-label="插入邮件引用">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M19 16v6"/><path d="M16 19h6"/></svg>
+          </button>
+          <button type="button" data-command="removeFormat" title="清除格式" aria-label="清除格式">
+            <svg class="toolbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4 8 20"/><path d="m15 15 5 5"/><path d="m20 15-5 5"/></svg>
+          </button>
+        </div>
+
+        <div id="editor" class="editor" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="notes.js"></script>
+</body>
+</html>

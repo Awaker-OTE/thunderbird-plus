@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thunderbird Plus</title>
+  <link rel="stylesheet" href="action.css">
+</head>
+<body>
+  <main class="action-panel" aria-label="Thunderbird Plus">
+    <header class="panel-header">
+      <img src="../icons/thunderbird-plus-32.png" alt="" width="20" height="20">
+      <strong>Thunderbird Plus</strong>
+      <small id="panel-related-status">检查关联备忘录...</small>
+    </header>
+
+    <section class="action-list" aria-label="邮件动作">
+      <button class="action-button" type="button" data-action="translateDisplayedMessageInline">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="m14 18h6"></path></svg>
+        <span>翻译</span>
+      </button>
+
+      <button class="action-button" type="button" data-action="saveDisplayedMessageToNote">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 18v-6"></path><path d="M9 15h6"></path></svg>
+        <span>存入备忘录</span>
+      </button>
+
+      <button class="action-button" type="button" data-action="appendDisplayedMessageToCurrentNote">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h8a4 4 0 0 1 0 8H5"></path><path d="m8 11-4 4 4 4"></path><path d="M19 3v6"></path><path d="M16 6h6"></path></svg>
+        <span>追加到当前备忘录</span>
+      </button>
+
+      <button class="action-button" type="button" data-action="saveDisplayedMessageToChecklist">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5h8"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="m3 7 2 2 4-4"></path><path d="m3 17 2 2 4-4"></path></svg>
+        <span>转为备忘录清单</span>
+      </button>
+
+      <button class="action-button" type="button" data-action="summarizeDisplayedMessageToNote">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.8 4.8L5.4 9.6l4.8 1.8L12 16.2l1.8-4.8 4.8-1.8-4.8-1.8z"></path><path d="M5 3v4"></path><path d="M3 5h4"></path><path d="M19 17v4"></path><path d="M17 19h4"></path></svg>
+        <span>总结到备忘录</span>
+      </button>
+
+      <button class="action-button" type="button" data-action="openRelatedDisplayedMessageNotes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <span>打开相关备忘录</span>
+        <small id="related-count" hidden></small>
+      </button>
+    </section>
+
+    <aside class="quick-note-panel" aria-label="快速备忘录">
+      <strong>快速备忘录</strong>
+      <input id="quick-note-title" type="text" placeholder="标题，可留空">
+      <textarea id="quick-note-text" rows="7" placeholder="写下这封邮件的备注..."></textarea>
+      <div class="quick-note-actions">
+        <button class="quick-button" type="button" data-quick-action="appendDisplayedMessageQuickNoteToCurrentNote">追加当前</button>
+        <button class="quick-button primary" type="button" data-quick-action="saveDisplayedMessageQuickNote">保存新备忘录</button>
+      </div>
+    </aside>
+
+    <p id="action-status" role="status"></p>
+  </main>
+  <script src="action.js"></script>
+</body>
+</html>

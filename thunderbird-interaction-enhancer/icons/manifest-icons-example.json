@@ -1,0 +1,30 @@
+{
+  "icons": {
+    "16": "icons/thunderbird-plus-16.png",
+    "32": "icons/thunderbird-plus-32.png",
+    "48": "icons/thunderbird-plus-48.png",
+    "64": "icons/thunderbird-plus-64.png",
+    "96": "icons/thunderbird-plus-96.png",
+    "128": "icons/thunderbird-plus-128.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/thunderbird-plus-16.png",
+      "32": "icons/thunderbird-plus-32.png",
+      "48": "icons/thunderbird-plus-48.png",
+      "64": "icons/thunderbird-plus-64.png",
+      "96": "icons/thunderbird-plus-96.png",
+      "128": "icons/thunderbird-plus-128.png"
+    }
+  },
+  "message_display_action": {
+    "default_icon": {
+      "16": "icons/thunderbird-plus-16.png",
+      "32": "icons/thunderbird-plus-32.png",
+      "48": "icons/thunderbird-plus-48.png",
+      "64": "icons/thunderbird-plus-64.png",
+      "96": "icons/thunderbird-plus-96.png",
+      "128": "icons/thunderbird-plus-128.png"
+    }
+  }
+}

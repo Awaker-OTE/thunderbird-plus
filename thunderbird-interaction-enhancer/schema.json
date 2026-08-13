@@ -1,0 +1,26 @@
+[
+  {
+    "namespace": "doubleClickCloseTab",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "Initialize double click to close tab functionality",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "copyTextToClipboard",
+        "type": "function",
+        "description": "Copy text to the system clipboard",
+        "async": true,
+        "parameters": [
+          {
+            "name": "text",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+]

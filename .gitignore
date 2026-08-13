@@ -1,0 +1,20 @@
+# Packaged extension and local Codex links
+thunderbird-interaction-enhancer.xpi
+.codex-links/
+
+# Local working notes
+thunderbird-interaction-enhancer/备忘录对接日历和任务讨论笔记.md
+
+# Python helper caches
+__pycache__/
+*.py[cod]
+
+# Local agent and editor context
+AGENTS.md
+AGENTS.override.md
+.agents/
+.trae/
+.cursor/
+.qoder/
+
+.DS_Store
