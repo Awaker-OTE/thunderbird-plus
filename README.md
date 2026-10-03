@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./icons/thunderbird-plus-128.png" width="112" alt="Thunderbird Plus" />
+  <img src="./thunderbird-interaction-enhancer/icons/thunderbird-plus-128.png" width="112" alt="Thunderbird Plus" />
 </p>
 
 <h1 align="center">Thunderbird Plus</h1>
@@ -108,7 +108,7 @@ API Key 存储在 Thunderbird 本地扩展存储（`storage`）中，不会离�
 
 ### 第三方组件
 
-- 图标部分源自 [Lucide](https://lucide.dev)，按其许可证使用，见 [`licenses/lucide-LICENSE.txt`](./licenses/lucide-LICENSE.txt)。
+- 图标部分源自 [Lucide](https://lucide.dev)，按其许可证使用，见 [`thunderbird-interaction-enhancer/licenses/lucide-LICENSE.txt`](./thunderbird-interaction-enhancer/licenses/lucide-LICENSE.txt)。
 
 ### 许可证
 
@@ -222,7 +222,7 @@ API keys are kept in Thunderbird's local extension storage (`storage`) and never
 ### Third-party components
 
 - Some icons are derived from [Lucide](https://lucide.dev), used under its own license —
-  see [`licenses/lucide-LICENSE.txt`](./licenses/lucide-LICENSE.txt).
+  see [`thunderbird-interaction-enhancer/licenses/lucide-LICENSE.txt`](./thunderbird-interaction-enhancer/licenses/lucide-LICENSE.txt).
 
 ### License
 
