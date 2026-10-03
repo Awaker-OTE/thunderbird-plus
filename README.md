@@ -83,6 +83,8 @@ python3 scripts/package-extension.py
 
 产物为仓库根目录下的 `thunderbird-interaction-enhancer.xpi`。
 
+> 自行打包的 XPI 与 Release 附件内容等价；因 zip 时间戳不同，二进制 SHA256 可能不一致。
+
 ### 隐私与外部请求
 
 **这一点请务必先读。**
@@ -193,6 +195,9 @@ python3 scripts/package-extension.py
 ```
 
 The result is `thunderbird-interaction-enhancer.xpi` at the repository root.
+
+> A self-built XPI is content-equivalent to the release asset; the binary SHA256 may differ
+> due to zip timestamps.
 
 ### Privacy and external requests
 
