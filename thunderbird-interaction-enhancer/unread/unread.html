@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>未读邮件 - Thunderbird Plus</title>
+  <link rel="stylesheet" href="unread.css">
+</head>
+<body>
+  <main class="panel">
+    <header class="panel-header">
+      <div>
+        <h1>未读邮件</h1>
+        <p id="summary" role="status" aria-live="polite">正在读取邮箱...</p>
+      </div>
+      <div class="header-actions">
+        <button id="mark-all-read" class="primary-button" type="button">全部已读</button>
+        <button id="refresh" class="icon-button" type="button" aria-label="刷新未读邮件" title="刷新">
+          <!-- Lucide: refresh-cw -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+        </button>
+        <button id="settings" class="icon-button" type="button" aria-label="打开扩展设置" title="设置">
+          <!-- Lucide: settings -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="筛选与排序">
+      <label class="search-box">
+        <span class="sr-only">搜索未读邮件</span>
+        <input id="search" type="search" placeholder="搜索发件人、主题或邮箱" autocomplete="off">
+      </label>
+      <div class="filter-grid">
+        <label>
+          <span class="filter-label">账号</span>
+          <select id="account-filter">
+            <option value="">所有账号</option>
+          </select>
+        </label>
+        <label>
+          <span class="filter-label">文件夹</span>
+          <select id="folder-filter">
+            <option value="">所有文件夹</option>
+          </select>
+        </label>
+        <label>
+          <span class="filter-label">排序</span>
+          <select id="sort-order">
+            <option value="newest">时间：最新优先</option>
+            <option value="oldest">时间：最早优先</option>
+            <option value="sender">发件人：A–Z</option>
+            <option value="subject">主题：A–Z</option>
+            <option value="account">账号：A–Z</option>
+          </select>
+        </label>
+        <label class="toggle-filter">
+          <input id="starred-only" type="checkbox">
+          <span>仅看星标</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="selection-toolbar" aria-label="批量操作">
+      <label class="select-visible-label">
+        <input id="select-visible" type="checkbox">
+        <span>选择当前显示</span>
+      </label>
+      <span id="selection-count" class="selection-count">未选择</span>
+      <button id="toggle-all-groups" class="secondary-button" type="button" hidden>全部展开</button>
+      <button id="mark-selected-read" class="secondary-button" type="button" disabled>标记已选为已读</button>
+    </section>
+
+    <section id="all-read-confirmation" class="confirm-card" aria-live="polite" hidden>
+      <p id="all-read-message"></p>
+      <div class="confirm-actions">
+        <button id="cancel-all-read" class="secondary-button" type="button">取消</button>
+        <button id="confirm-all-read" class="primary-button" type="button">确认全部已读</button>
+      </div>
+    </section>
+
+    <section id="messages" class="messages" aria-label="未读邮件列表" aria-live="polite"></section>
+    <p id="empty" class="empty" hidden></p>
+    <p id="error" class="error" role="alert" hidden></p>
+    <p id="activity-status" class="activity-status" role="status" aria-live="polite" hidden></p>
+
+    <footer class="panel-footer">
+      <button id="load-more" class="load-more" type="button" hidden>加载更多</button>
+    </footer>
+  </main>
+  <script src="unread.js"></script>
+</body>
+</html>

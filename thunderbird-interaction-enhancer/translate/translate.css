@@ -36,7 +36,6 @@ body {
   background: none;
   border: none;
   color: white;
-  font-size: 18px;
   cursor: pointer;
   width: 28px;
   height: 28px;
@@ -44,6 +43,25 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  padding: 0;
+}
+
+/* Icon styling lives here rather than on the <svg> elements themselves, so the
+   markup stays clean and every icon inherits colour from its button. Kept in
+   the same shape as message-action/action.css. */
+#closeBtn svg,
+#settingsBtn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#closeBtn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 #closeBtn:hover {
@@ -125,6 +143,9 @@ body {
 }
 
 #settingsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 6px 14px;
   background: #f0f0f0;
   color: #333;
@@ -132,6 +153,12 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
+}
+
+#settingsBtn svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 #settingsBtn:hover {

@@ -175,62 +175,54 @@ function setupTitleBarDoubleClick(window) {
 
 function setupMarkAllReadButton(mainWindow) {
   const mainDoc = mainWindow.document;
+  const MAX_INJECTION_ATTEMPTS = 20;
+  const INJECTION_RETRY_DELAY_MS = 500;
+  let injectionRetryTimer = null;
+  let injectionRetryAttempts = 0;
 
-  // Get the about:3pane contentDocument via multiple approaches
+  function isThreePaneURL(url) {
+    return typeof url === "string" && url === "about:3pane";
+  }
+
+  // Only modify the actual mail three-pane document, never the currently
+  // selected content tab (which may be about:debugging or a message tab).
   function getThreePaneDoc() {
-    // Approach 1: tabmail.currentBrowser
     try {
       const tabmail = mainDoc.getElementById("tabmail");
-      if (tabmail?.currentBrowser?.contentDocument?.body) {
-        return tabmail.currentBrowser.contentDocument;
-      }
+      const doc = tabmail?.currentAbout3Pane?.document;
+      return isThreePaneURL(doc?.location?.href) ? doc : null;
     } catch (e) {}
-
-    // Approach 2: tabmail.currentTabInfo.browser
-    try {
-      const tabmail = mainDoc.getElementById("tabmail");
-      if (tabmail?.currentTabInfo?.browser?.contentDocument?.body) {
-        return tabmail.currentTabInfo.browser.contentDocument;
-      }
-    } catch (e) {}
-
-    // Approach 3: any browser with about:3pane URL
-    try {
-      const browsers = mainDoc.querySelectorAll("browser");
-      for (const b of browsers) {
-        try {
-          const loc = b.contentDocument?.location?.href || "";
-          if (loc === "about:3pane" || loc.includes("3pane")) {
-            return b.contentDocument;
-          }
-        } catch (e) {}
-      }
-    } catch (e) {}
-
-    // Approach 4: tabpanelcontainer's first browser
-    try {
-      const container = mainDoc.getElementById("tabpanelcontainer");
-      if (container) {
-        const browser = container.querySelector("browser");
-        if (browser?.contentDocument?.body) {
-          return browser.contentDocument;
-        }
-      }
-    } catch (e) {}
-
-    // Approach 5: any browser with a body
-    try {
-      const browsers = mainDoc.querySelectorAll("browser");
-      for (const b of browsers) {
-        try {
-          if (b.contentDocument?.body) {
-            return b.contentDocument;
-          }
-        } catch (e) {}
-      }
-    } catch (e) {}
-
     return null;
+  }
+
+  function stopInjectionRetry() {
+    if (injectionRetryTimer !== null) {
+      mainWindow.clearInterval(injectionRetryTimer);
+      injectionRetryTimer = null;
+    }
+    injectionRetryAttempts = 0;
+  }
+
+  function scheduleInjection() {
+    stopInjectionRetry();
+    if (!getThreePaneDoc() || inject()) {
+      return;
+    }
+
+    injectionRetryTimer = mainWindow.setInterval(() => {
+      if (!getThreePaneDoc() || inject()) {
+        stopInjectionRetry();
+        return;
+      }
+
+      injectionRetryAttempts += 1;
+      if (injectionRetryAttempts >= MAX_INJECTION_ATTEMPTS) {
+        stopInjectionRetry();
+        console.warn(
+          `DoubleClickCloseTab: Quick filter button not found after ${MAX_INJECTION_ATTEMPTS} attempts; will retry when the mail tab is selected again.`
+        );
+      }
+    }, INJECTION_RETRY_DELAY_MS);
   }
 
   // Recursively search shadow DOM
@@ -539,29 +531,30 @@ function setupMarkAllReadButton(mainWindow) {
 
   function inject() {
     try {
-      // Replace any previously injected button so extension reloads pick up style fixes.
-      const threePaneDoc = getThreePaneDoc();
+      const doc = getThreePaneDoc();
+      if (!doc) {
+        return false;
+      }
+      const targetWin = doc.defaultView || mainWindow;
       const buttonIds = [
         "custom-mark-all-read-btn",
         "custom-mark-all-mail-read-btn",
       ];
-      for (const doc of [mainDoc, threePaneDoc]) {
-        if (!doc) {
-          continue;
-        }
-        for (const id of buttonIds) {
-          const existingButton = doc.getElementById(id);
+      const existingButtons = buttonIds.map((id) => doc.getElementById(id));
+      if (existingButtons.every(Boolean)) {
+        return true;
+      }
+
+      // Remove partial or obsolete copies before reinserting both buttons.
+      for (const id of buttonIds) {
+        for (const ownerDoc of [mainDoc, doc]) {
+          const existingButton = ownerDoc.getElementById(id);
           if (existingButton) {
             existingButton._markAllReadResizeObserver?.disconnect();
             existingButton.remove();
           }
         }
       }
-
-      const doc = threePaneDoc || mainDoc;
-      const targetWin = threePaneDoc ? threePaneDoc.defaultView : mainWindow;
-
-      console.log("DoubleClickCloseTab: injecting into doc:", doc.location?.href || "unknown");
 
       // Search for the quick filter button including shadow DOM
       const qfCandidate = deepQuery(doc, (el) => {
@@ -591,7 +584,7 @@ function setupMarkAllReadButton(mainWindow) {
         });
         qfBtn.parentNode.insertBefore(currentFolderButton, qfBtn);
         qfBtn.parentNode.insertBefore(allMailButton, qfBtn);
-        console.log("DoubleClickCloseTab: Mark All Read buttons injected next to quick filter");
+        console.log("DoubleClickCloseTab: Mark All Read buttons injected into about:3pane");
         // Remove fallback if it exists
         mainDoc.getElementById("custom-mark-all-read-btn-fallback")?.remove();
 
@@ -599,8 +592,6 @@ function setupMarkAllReadButton(mainWindow) {
 
         return true;
       }
-
-      console.log("DoubleClickCloseTab: Quick filter button not found yet, will retry...");
     } catch (e) {
       console.error("DoubleClickCloseTab: inject error", e);
     }
@@ -609,21 +600,22 @@ function setupMarkAllReadButton(mainWindow) {
 
 
 
-  // Initial injection after a short delay (DOM needs time to fully load)
-  mainWindow.setTimeout(() => inject(), 1500);
-
-  // Retry periodically
-  mainWindow.setInterval(() => {
-    const threePaneDoc = getThreePaneDoc();
-    const hasCurrentFolderButton =
-      mainDoc.getElementById("custom-mark-all-read-btn") ||
-      (threePaneDoc && threePaneDoc.getElementById("custom-mark-all-read-btn"));
-    const hasAllMailButton =
-      mainDoc.getElementById("custom-mark-all-mail-read-btn") ||
-      (threePaneDoc && threePaneDoc.getElementById("custom-mark-all-mail-read-btn"));
-    const alreadyInjected = hasCurrentFolderButton && hasAllMailButton;
-    if (!alreadyInjected) {
-      inject();
+  const tabmail = mainDoc.getElementById("tabmail");
+  const tabContainer = tabmail?.tabContainer;
+  const handleTabSelect = (event) => {
+    const tabInfo = event.detail?.tabInfo || tabmail?.currentTabInfo;
+    if (tabInfo?.mode?.name === "mail3PaneTab") {
+      scheduleInjection();
+    } else {
+      stopInjectionRetry();
     }
-  }, 3000);
+  };
+  tabContainer?.addEventListener("TabSelect", handleTabSelect);
+
+  const initialInjectionTimer = mainWindow.setTimeout(scheduleInjection, 1500);
+  mainWindow.addEventListener("unload", () => {
+    mainWindow.clearTimeout(initialInjectionTimer);
+    stopInjectionRetry();
+    tabContainer?.removeEventListener("TabSelect", handleTabSelect);
+  }, { once: true });
 }

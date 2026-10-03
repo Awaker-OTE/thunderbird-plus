@@ -5,6 +5,9 @@ thunderbird-interaction-enhancer.xpi
 # Local working notes
 thunderbird-interaction-enhancer/备忘录对接日历和任务讨论笔记.md
 
+# Local agent workspace (memory, skills, session state)
+.workbuddy/
+
 # Python helper caches
 __pycache__/
 *.py[cod]

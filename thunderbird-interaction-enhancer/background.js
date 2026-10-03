@@ -20,7 +20,7 @@ registerNotesSpace().catch(error => {
 // Add context menu item for settings
 extensionApi.menus.create({
   id: "open-settings",
-  title: "翻译设置",
+  title: "扩展设置",
   contexts: ["browser_action"]
 });
 createMenuItem({
@@ -186,6 +186,253 @@ if (extensionApi.menus?.onShown && extensionApi.menus?.update) {
 // Handle browser action click to open settings
 extensionApi.browserAction.onClicked.addListener(() => {
   openOptionsPage();
+});
+
+// ---------------------------------------------------------------------------
+// Global unread count in the toolbar button's tooltip.
+// The count covers ALL accounts and folders, independent of the unread panel's
+// own filters, so it can be read without opening the popup.
+// Note: setTitle() only accepts plain text — no styling, colour or markup is
+// possible. The count is therefore set off with full-width brackets so it
+// stands apart from the extension name.
+// ---------------------------------------------------------------------------
+let unreadTotal = null;
+let unreadTotalUpdatedAt = 0;
+let unreadTotalTimer = null;
+
+const unreadPanelPorts = new Set();
+const UNREAD_TITLE_BASE = "Thunderbird Plus";
+
+function formatUnreadTitle(total) {
+  if (!Number.isFinite(total)) return UNREAD_TITLE_BASE;
+  if (total <= 0) return `${UNREAD_TITLE_BASE} 【 无未读 】`;
+  return `${UNREAD_TITLE_BASE} 【 ${total} 封未读 】`;
+}
+
+function unreadActionApi(port) {
+  return port?.browserAction || extensionApi.browserAction;
+}
+
+async function applyUnreadTitle(total, { port = null } = {}) {
+  const api = unreadActionApi(port);
+  if (!api?.setTitle) return;
+
+  const details = port ? { targets: [{ port }] } : {};
+  await api.setTitle({ ...details, title: formatUnreadTitle(total) }).catch?.(() => {});
+}
+
+async function broadcastUnreadTotal(total) {
+  const title = formatUnreadTitle(total);
+  await applyUnreadTitle(total);
+
+  for (const port of unreadPanelPorts) {
+    const api = unreadActionApi(port);
+    if (api?.setTitle) {
+      await api.setTitle({ targets: [{ port }], title }).catch?.(() => {});
+    }
+    try {
+      port.postMessage({ action: "unreadBadgeTotal", total });
+    } catch (error) {
+      // Panel closed mid-update; the disconnect handler will prune the port.
+    }
+  }
+}
+
+async function countUnreadViaQuery() {
+  let total = 0;
+  let page = await extensionApi.messages.query({
+    unread: true,
+    messagesPerPage: 100,
+    autoPaginationTimeout: 500
+  });
+
+  while (page) {
+    for (const message of page.messages || []) {
+      if (message.read !== true) total += 1;
+    }
+    if (!page.id) break;
+    page = await extensionApi.messages.continueList(page.id);
+  }
+  return total;
+}
+
+async function countUnreadViaFolders() {
+  const accounts = await extensionApi.accounts.list();
+  const folderIds = [];
+  const seen = new Set();
+
+  for (const account of accounts) {
+    for (const folder of account.folders || []) {
+      if (folder.id === undefined || folder.id === null || seen.has(folder.id)) continue;
+      seen.add(folder.id);
+      folderIds.push(folder.id);
+    }
+  }
+
+  const counts = await extensionApi.messages.getUnreadCount(folderIds).catch(() => null);
+  if (!counts) return null;
+
+  const valueFor = id => counts[id] ?? counts[String(id)];
+  const total = folderIds.reduce((sum, id) => {
+    const value = valueFor(id);
+    return Number.isFinite(value) ? sum + value : sum;
+  }, 0);
+
+  // getUnreadCount excludes Trash by default; fold in the Trash unread items
+  // so the badge agrees with "mark all as read" across every folder.
+  const trashIds = [];
+  for (const account of accounts) {
+    for (const folder of account.folders || []) {
+      const special = String(folder.type || "").toLowerCase();
+      const isTrash = special.includes("trash") || special.includes("deleted");
+      if (!isTrash || folder.id === undefined || folder.id === null) continue;
+      trashIds.push(folder.id);
+    }
+  }
+
+  if (trashIds.length) {
+    const trashCounts = await extensionApi.messages
+      .getUnreadCount({ folderIds: trashIds, includeTrash: true })
+      .catch(() => null);
+    if (trashCounts) {
+      for (const id of trashIds) {
+        const value = trashCounts[id] ?? trashCounts[String(id)];
+        if (Number.isFinite(value)) total += value;
+      }
+    }
+  }
+
+  return total;
+}
+
+async function computeGlobalUnreadTotal() {
+  if (extensionApi.accounts?.list && extensionApi.messages?.getUnreadCount) {
+    try {
+      const total = await countUnreadViaFolders();
+      if (Number.isFinite(total)) return total;
+    } catch (error) {
+      console.warn("Folder-based unread count failed, falling back to query:", error);
+    }
+  }
+  return countUnreadViaQuery();
+}
+
+async function refreshUnreadTotal({ force = false } = {}) {
+  if (!extensionApi.browserAction?.setTitle) return;
+
+  // Throttle event bursts, but never throttle the authoritative recompute.
+  const now = Date.now();
+  if (!force && now - unreadTotalUpdatedAt < 400) {
+    if (unreadTotalTimer) return;
+    unreadTotalTimer = setTimeout(() => {
+      unreadTotalTimer = null;
+      refreshUnreadTotal({ force: true }).catch(error => {
+        console.error("Refresh unread total failed:", error);
+      });
+    }, 400);
+    return;
+  }
+  if (unreadTotalTimer) {
+    clearTimeout(unreadTotalTimer);
+    unreadTotalTimer = null;
+  }
+
+  try {
+    const total = await computeGlobalUnreadTotal();
+    unreadTotalUpdatedAt = Date.now();
+    unreadTotal = total;
+    await broadcastUnreadTotal(total);
+  } catch (error) {
+    console.error("Compute unread badge failed:", error);
+  }
+}
+
+extensionApi.messages?.onNewMailReceived?.addListener(() => {
+  refreshUnreadTotal().catch(() => {});
+});
+
+if (extensionApi.messages?.onUpdated) {
+  extensionApi.messages.onUpdated.addListener((message, changedProperties = {}) => {
+    if (changedProperties.read === undefined && message?.read === undefined) return;
+    refreshUnreadTotal().catch(() => {});
+  });
+}
+
+if (extensionApi.messages?.onDeleted) {
+  extensionApi.messages.onDeleted.addListener(() => {
+    refreshUnreadTotal().catch(() => {});
+  });
+}
+
+if (extensionApi.accounts?.onDeleted) {
+  extensionApi.accounts.onDeleted.addListener(() => {
+    refreshUnreadTotal({ force: true }).catch(() => {});
+  });
+}
+
+if (extensionApi.runtime?.onConnect) {
+  extensionApi.runtime.onConnect.addListener(port => {
+    if (port.name !== "unread-panel") return;
+
+    unreadPanelPorts.add(port);
+    const pushCurrent = () => {
+      if (unreadTotal === null) return;
+      applyUnreadTitle(unreadTotal, { port }).catch(() => {});
+      try {
+        port.postMessage({ action: "unreadBadgeTotal", total: unreadTotal });
+      } catch (error) {
+        // Panel may have closed between the count and the push.
+      }
+    };
+
+    port.onDisconnect.addListener(() => {
+      unreadPanelPorts.delete(port);
+    });
+
+    port.onMessage.addListener(message => {
+      if (message?.action === "refreshUnreadBadge" || message?.action === "panelOpened") {
+        refreshUnreadTotal({ force: true })
+          .then(pushCurrent)
+          .catch(() => {});
+      }
+    });
+
+    refreshUnreadTotal({ force: true })
+      .then(pushCurrent)
+      .catch(() => {});
+  });
+}
+
+if (extensionApi.runtime?.onMessage) {
+  extensionApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request?.action !== "getUnreadBadgeTotal") return undefined;
+
+    const respond = total => sendResponse({ success: true, total });
+    if (unreadTotal !== null) {
+      respond(unreadTotal);
+      refreshUnreadTotal().catch(() => {});
+      return true;
+    }
+
+    computeGlobalUnreadTotal()
+      .then(total => {
+        unreadTotal = total;
+        unreadTotalUpdatedAt = Date.now();
+        respond(total);
+      })
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  });
+}
+
+if (extensionApi.runtime?.onStartup) {
+  extensionApi.runtime.onStartup.addListener(() => {
+    refreshUnreadTotal({ force: true }).catch(() => {});
+  });
+}
+
+refreshUnreadTotal({ force: true }).catch(error => {
+  console.error("Initialize unread badge failed:", error);
 });
 
 if (extensionApi.messageDisplayAction?.onClicked) {
